@@ -1,0 +1,7 @@
+django
+django_rest_framework
+django-cors-headers
+pytz==2022.2.1
+tzdata==2022.2
+mysqlclient
+djangorestframework-simplejwt

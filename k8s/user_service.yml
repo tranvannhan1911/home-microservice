@@ -1,0 +1,51 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: user-service
+  namespace: default
+data:
+  MYSQL_NAME: "ktpm"
+  MYSQL_USER: "ktpm"
+  MYSQL_PASSWORD: "ktpm"
+  MYSQL_HOST: "13.214.169.137"
+  MYSQL_PORT: "3306"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service-deployment
+  labels:
+    app: user-service # label of deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user-service  # deployment manage pods through labels of pods
+  template:
+    metadata:
+      labels:
+        app: user-service  # label of pods
+    spec:
+      containers:
+      - name: user-service # name of the container
+        image: tranvannhan1911/ktpm_user_service # image
+        ports:
+        - containerPort: 8000 # port of the container will be exposed
+        envFrom: # environment variale
+        - configMapRef: # environment variale from configmap name user-service
+            name: user-service 
+        # - secretRef: # environment variale from secret name user-service
+        #     name: user-service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service # name of the service
+spec:
+  selector:
+    app: user-service # service manage pods through labels of the pod
+  ports:
+    - protocol: TCP # type protocol
+      port: 8000 # port of the service
+      targetPort: 8000 # target port of the container in the pod
+  type: ClusterIP # type service

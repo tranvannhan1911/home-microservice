@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: contract-service
+  namespace: default
+data:
+  USER_SERVICE_URL: http://user-service:8000
+  DEPARTMENT_SERVICE_URL: http://home-service:3001
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: contract-service-deployment
+  labels:
+    app: contract-service # label of deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: contract-service  # deployment manage pods through labels of pods
+  template:
+    metadata:
+      labels:
+        app: contract-service  # label of pods
+    spec:
+      containers:
+      - name: contract-service # name of the container
+        image: tranvannhan1911/ktpm_contract_service # image
+        ports:
+        - containerPort: 9999 # port of the container will be exposed
+        envFrom: # environment variale
+        - configMapRef: # environment variale from configmap name user-service
+            name: contract-service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: contract-service # name of the service
+spec:
+  selector:
+    app: contract-service # service manage pods through labels of the pod
+  ports:
+    - protocol: TCP # type protocol
+      port: 9999 # port of the service
+      targetPort: 9999 # target port of the container in the pod
+  type: ClusterIP # type service

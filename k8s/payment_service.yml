@@ -1,0 +1,53 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: payment-service
+  namespace: default
+data:
+  USER_SERVICE_URL: http://user-service:8000
+  CONTRACT_SERVICE_URL: http://contract-service:9999
+  MYSQL_NAME: "ktpm"
+  MYSQL_USER: "ktpm"
+  MYSQL_PASSWORD: "ktpm"
+  MYSQL_HOST: "13.214.169.137"
+  REDIS_HOST: "redis-16898.c292.ap-southeast-1-1.ec2.cloud.redislabs.com"
+  REDIS_PORT: "16898"
+  REDIS_PASSWORD: "mkMShczm1jM2TeTxj3N3my2y7EitblCT"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment-service-deployment
+  labels:
+    app: payment-service # label of deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: payment-service  # deployment manage pods through labels of pods
+  template:
+    metadata:
+      labels:
+        app: payment-service  # label of pods
+    spec:
+      containers:
+      - name: payment-service # name of the container
+        image: tranvannhan1911/ktpm_payment_service # image
+        ports:
+        - containerPort: 3002 # port of the container will be exposed
+        envFrom: # environment variale
+        - configMapRef: # environment variale from configmap name user-service
+            name: payment-service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: payment-service # name of the service
+spec:
+  selector:
+    app: payment-service # service manage pods through labels of the pod
+  ports:
+    - protocol: TCP # type protocol
+      port: 3002 # port of the service
+      targetPort: 3002 # target port of the container in the pod
+  type: ClusterIP # type service

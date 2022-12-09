@@ -1,0 +1,57 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: home-service
+  namespace: default
+data:
+  API_URL: http://user-service:8000
+  MONGODB_USER: "admin"
+  MONGODB_PASSWORD: "LFf4FB4Oo9kRlAOA"
+  MONGODB_DB_NAME: "home-microservice"
+  MONGODB_HOST: "cluster0.fvxrnyb.mongodb.net"
+  CLOUDINARY_CLOUD_NAME: "dangdan2807"
+  CLOUDINARY_API_KEY: "275291133989876"
+  CLOUDINARY_API_SECRECT: "y9C2RPdrzLxPH4-p_Z-V3bKtsJs"
+  REDIS_HOST: "redis-16898.c292.ap-southeast-1-1.ec2.cloud.redislabs.com"
+  REDIS_PORT: "16898"
+  REDIS_PASSWORD: "mkMShczm1jM2TeTxj3N3my2y7EitblCT"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: home-service-deployment
+  labels:
+    app: home-service # label of deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: home-service  # deployment manage pods through labels of pods
+  template:
+    metadata:
+      labels:
+        app: home-service  # label of pods
+    spec:
+      containers:
+      - name: home-service # name of the container
+        image: dangdan2807/home-service-ktvatkpm:v1.2.1 # image
+        ports:
+        - containerPort: 3001 # port of the container will be exposed
+        envFrom: # environment variale
+        - configMapRef: # environment variale from configmap name user-service
+            name: home-service 
+        # - secretRef: # environment variale from secret name user-service
+        #     name: user-service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: home-service # name of the service
+spec:
+  selector:
+    app: home-service # service manage pods through labels of the pod
+  ports:
+    - protocol: TCP # type protocol
+      port: 3001 # port of the service
+      targetPort: 3001 # target port of the container in the pod
+  type: ClusterIP # type service

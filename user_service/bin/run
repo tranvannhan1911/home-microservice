@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+docker run -d -p 8000:8000 \
+    -e MYSQL_NAME=user_service \
+    -e MYSQL_USER=root \
+    -e MYSQL_PASSWORD=12345678 \
+    -e MYSQL_HOST=ktpm.cxvcicimiwak.ap-southeast-1.rds.amazonaws.com \
+    -e MYSQL_PORT=3306 \
+    --restart on-failure:5 \
+    --name ktpm_user_service \
+    --network="host" \
+    tranvannhan1911/ktpm_user_service
